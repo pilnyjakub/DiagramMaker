@@ -1,0 +1,161 @@
+﻿<Window x:Class="DiagramMaker.Editor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DiagramMaker"
+        xmlns:extensions="clr-namespace:DiagramMaker"
+        mc:Ignorable="d"
+        Title="Editor" Height="450" Width="800">
+    <Window.Resources>
+        <SolidColorBrush x:Key="TextBox.Static.Border" Color="#FFABAdB3"/>
+        <SolidColorBrush x:Key="TextBox.MouseOver.Border" Color="#FF7EB4EA"/>
+        <SolidColorBrush x:Key="TextBox.Focus.Border" Color="#FF569DE5"/>
+        <Style x:Key="TextBoxPlaceholder" TargetType="{x:Type TextBox}">
+            <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource TextBox.Static.Border}"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="KeyboardNavigation.TabNavigation" Value="None"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="AllowDrop" Value="true"/>
+            <Setter Property="ScrollViewer.PanningMode" Value="VerticalFirst"/>
+            <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TextBox}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="True">
+                            <Grid>
+                                <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                                <TextBlock x:Name="placeholderTextBlock"
+                                   Text="{TemplateBinding extensions:Extensions.Placeholder}" Visibility="Collapsed" Foreground="Gray"
+                                   FontSize="{TemplateBinding FontSize}"
+                                   FontFamily="{TemplateBinding FontFamily}"
+                                   VerticalAlignment="{TemplateBinding VerticalAlignment}"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Opacity" TargetName="border" Value="0.56"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource TextBox.MouseOver.Border}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource TextBox.Focus.Border}"/>
+                            </Trigger>
+                            <Trigger Property="Text" Value="">
+                                <Setter Property="Visibility" TargetName="placeholderTextBlock" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsInactiveSelectionHighlightEnabled" Value="true"/>
+                        <Condition Property="IsSelectionActive" Value="false"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="SelectionBrush" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"/>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="4*"></ColumnDefinition>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"></RowDefinition>
+            <RowDefinition Height="15*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <TextBox x:Name="Header" Style="{DynamicResource TextBoxPlaceholder}" extensions:Extensions.Placeholder="Class Name" Grid.Row="0" Grid.Column="0" TextAlignment="Center"/>
+        <Button x:Name="SaveExitButton" Content="Save Name &amp; Exit" Grid.Row="0" Grid.Column="1" ToolTip="Saves class name and closes editor." Click="SaveExitButton_Click"/>
+        <TabControl Grid.Row="1" Grid.ColumnSpan="2">
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock>Variables</TextBlock>
+                </TabItem.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.25*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="0.35*"/>
+                        <ColumnDefinition Width="0.25*"/>
+                        <ColumnDefinition Width="0.25*"/>
+                        <ColumnDefinition Width="0.25*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="15*"/>
+                    </Grid.RowDefinitions>
+                    <ComboBox x:Name="VariableComboBoxAccess" Grid.Row="0" Grid.Column="0" SelectedIndex="0" SelectedValuePath="Content"/>
+                    <TextBox x:Name="VariableTextBoxName" Style="{DynamicResource TextBoxPlaceholder}" extensions:Extensions.Placeholder="Variable Name" Grid.Row="0" Grid.Column="1"/>
+                    <TextBox x:Name="VariableTextBoxType" Style="{DynamicResource TextBoxPlaceholder}" extensions:Extensions.Placeholder="Variable Type" Grid.Row="0" Grid.Column="2"/>
+                    <Button x:Name="VariableAddEditButton" Content="Add" Grid.Row="0" Grid.Column="3" ToolTip="Adds a new row when no rows are selected. Edits selected row." Click="VariableAddEditButton_Click"/>
+                    <Button x:Name="VariableRemoveButton" Content="Remove" Grid.Row="0" Grid.Column="4" IsEnabled="False" ToolTip="Removes selected row." Click="VariableRemoveButton_Click"/>
+                    <Button x:Name="VariableDeselectButton" Content="Deselect Row" Grid.Row="0" Grid.Column="5" IsEnabled="False" ToolTip="Deselects row." Click="VariableDeselectButton_Click"/>
+                    <DataGrid x:Name="VariableDataGrid" Grid.Row="2" Grid.ColumnSpan="6" AutoGenerateColumns="False" CanUserSortColumns="False" IsReadOnly="True" SelectionMode="Single" SelectionChanged="VariableDataGrid_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Access" Width="1*" Binding="{Binding Access}"/>
+                            <DataGridTextColumn Header="Variable Name" Width="4*" Binding="{Binding Name}"/>
+                            <DataGridTextColumn Header="Returns" Width="2*" Binding="{Binding Type}"/>
+                        </DataGrid.Columns>
+                        <DataGrid.Resources>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightBlue"/>
+                        </DataGrid.Resources>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock>Methods</TextBlock>
+                </TabItem.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.25*"/>
+                        <ColumnDefinition Width="0.9*"/>
+                        <ColumnDefinition Width="0.25*"/>
+                        <ColumnDefinition Width="0.2*"/>
+                        <ColumnDefinition Width="0.2*"/>
+                        <ColumnDefinition Width="0.2*"/>
+                        <ColumnDefinition Width="0.22*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="0.075*"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+                    <ComboBox x:Name="MethodComboBoxAccess" Grid.Row="0" Grid.Column="0" SelectedIndex="0" SelectedValuePath="Content" ToolTip="Ignored for method variables."/>
+                    <TextBox x:Name="MethodTextBoxName" Style="{DynamicResource TextBoxPlaceholder}" extensions:Extensions.Placeholder="Method / Method Variable Name" Grid.Row="0" Grid.Column="1"/>
+                    <TextBox x:Name="MethodTextBoxType" Style="{DynamicResource TextBoxPlaceholder}" extensions:Extensions.Placeholder="Type" Grid.Row="0" Grid.Column="2"/>
+                    <Button x:Name="MethodAddButton" Content="Add" Grid.Row="0" Grid.Column="3" ToolTip="Adds a new row, if method is selected, adds varibles to selected method." Click="MethodAddButton_Click"/>
+                    <Button x:Name="MethodEditButton" Content="Edit" Grid.Row="0" Grid.Column="4" IsEnabled="False" ToolTip="Edits selected row, if method is selected, varible is being edited." Click="MethodEditButton_Click"/>
+                    <Button x:Name="MethodRemoveButton" Content="Remove" Grid.Row="0" Grid.Column="5" IsEnabled="False" ToolTip="Removes selected row, if method varible is selected it deletes it before method." Click="MethodRemoveButton_Click"/>
+                    <Button x:Name="MethodDeselectButton" Content="Deselect Row" Grid.Row="0" Grid.Column="6" IsEnabled="False" ToolTip="Deselects method." Click="MethodDeselectButton_Click"/>
+                    <DataGrid x:Name="MethodDataGrid" Grid.Row="1" Grid.ColumnSpan="2" AutoGenerateColumns="False" CanUserSortColumns="False" IsReadOnly="True" SelectionMode="Single" SelectionChanged="MethodDataGrid_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Access" Width="1*" Binding="{Binding Access}"/>
+                            <DataGridTextColumn Header="Method Name" Width="4*" Binding="{Binding Name}"/>
+                            <DataGridTextColumn Header="Returns" Width="2*" Binding="{Binding Type}"/>
+                        </DataGrid.Columns>
+                        <DataGrid.Resources>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightBlue"/>
+                        </DataGrid.Resources>
+                    </DataGrid>
+                    <DataGrid x:Name="MethodVariablesDataGrid" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="5" AutoGenerateColumns="False" CanUserSortColumns="False" IsReadOnly="True" SelectionMode="Single" SelectionChanged="MethodVariablesDataGrid_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Variable Name" Width="3*" Binding="{Binding Name}"/>
+                            <DataGridTextColumn Header="Type" Width="1*" Binding="{Binding Type}"/>
+                        </DataGrid.Columns>
+                        <DataGrid.Resources>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightBlue"/>
+                        </DataGrid.Resources>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
