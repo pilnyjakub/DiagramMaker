@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -21,10 +23,14 @@ namespace DiagramMaker
         private readonly ObservableCollection<Connection> connections = new();
         private Node? SourceNode;
         private Node? DestNode;
-        private bool connectionDashed = false;
-        private bool connectionFill = false;
+        private bool connectionDashed;
+        private bool connectionFill;
         private Connection.ShapeEnum connectionShape = Connection.ShapeEnum.Arrow;
-        private bool connect = false;
+        private bool connect;
+        private readonly Brush brushButton = new SolidColorBrush(Color.FromRgb(22, 27, 34));
+        private readonly Brush brushDefault = new SolidColorBrush(Color.FromRgb(48, 54, 61));
+        private readonly Brush brushSelected = new SolidColorBrush(Color.FromRgb(139, 148, 158));
+        private readonly Brush brushBackground = new SolidColorBrush(Color.FromRgb(33, 38, 45));
         public MainWindow()
         {
             InitializeComponent();
@@ -67,10 +73,10 @@ namespace DiagramMaker
             pointNode = Mouse.GetPosition(selectedNode);
             foreach (Node n in Canvas.Children.OfType<Node>())
             {
-                n.Background = Brushes.Beige;
+                n.Border.BorderBrush = brushDefault;
                 Canvas.SetZIndex(n, 1);
             }
-            selectedNode.Background = Brushes.Bisque;
+            selectedNode.Border.BorderBrush = brushSelected;
             if (connect)
             {
                 if (SourceNode is null)
@@ -121,7 +127,8 @@ namespace DiagramMaker
             if (!connect)
             {
                 connect = true;
-                ConnectButton.Background = Brushes.LightBlue;
+                ConnectButton.Background = brushDefault;
+                ConnectButton.BorderBrush = brushSelected;
                 ContextMenu contextMenu = new()
                 {
                     PlacementTarget = (Button)sender,
@@ -182,44 +189,37 @@ namespace DiagramMaker
         private void ResetConnect()
         {
             connect = false;
-            ConnectButton.Background = Brushes.LightGray;
+            ConnectButton.Background = brushButton;
+            ConnectButton.BorderBrush = brushDefault;
             SourceNode = null;
             DestNode = null;
         }
 
         private void DrawConnections()
         {
-            foreach (Connection c in connections)
+            for (int i = 0; i < connections.Count; i++)
             {
+                Connection c = connections[i];
+                double halfDestinationWidth = c.Destination.Width / 2;
+                double halfDestinationHeight = c.Destination.Height / 2;
                 if (c.Path is null)
                 {
-                    c.Path = new Path
-                    {
-                        Stroke = Brushes.Black,
-                        StrokeThickness = 2
-                    };
+                    c.Path = SetPath();
                     c.Path.PreviewMouseRightButtonDown += Path_PreviewMouseRightButtonDown;
                     _ = Canvas.Children.Add(c.Path);
                 }
                 if (c.ShapePath is null)
                 {
-                    c.ShapePath = new Path
-                    {
-                        Stroke = Brushes.Black,
-                        StrokeThickness = 2
-                    };
+                    c.ShapePath = SetPath();
                     _ = Canvas.Children.Add(c.ShapePath);
                 }
-                c.ShapePath.Fill = c.Fill ? Brushes.Black : Brushes.White;
+                c.ShapePath.Fill = c.Fill ? brushSelected : brushBackground;
                 c.Path.StrokeDashArray = c.Dashed ? new DoubleCollection() { 3, 3 } : null;
                 Point SrcP = new() { X = Canvas.GetLeft(c.Source) + (c.Source.Width / 2), Y = Canvas.GetTop(c.Source) + (c.Source.Height / 2) };
-                Point DstP = new() { X = Canvas.GetLeft(c.Destination) + (c.Destination.Width / 2), Y = Canvas.GetTop(c.Destination) + (c.Destination.Height / 2) };
-
+                Point DstP = new() { X = Canvas.GetLeft(c.Destination) + halfDestinationWidth, Y = Canvas.GetTop(c.Destination) + halfDestinationHeight };
                 double distanceX = SrcP.X - DstP.X;
                 double distanceY = SrcP.Y - DstP.Y;
                 bool sideConnections = Math.Abs(distanceY) <= Math.Max(c.Source.Height, c.Destination.Height);
-                bool notArrow = c.Shape is Connection.ShapeEnum.Diamond or Connection.ShapeEnum.Triangle;
-
                 PathFigureCollection pathFigures = new() {
                     new PathFigure() {
                         IsClosed = false,
@@ -233,38 +233,7 @@ namespace DiagramMaker
                     }
                 };
                 c.Path.Data = new PathGeometry() { Figures = pathFigures };
-                PathFigureCollection shapePathFigures = new()
-                {
-                    new PathFigure()
-                    {
-                        IsClosed = notArrow,
-                        IsFilled = true,
-                        StartPoint = new() {
-                            X = DstP.X + (sideConnections ? distanceX > 0 ? (c.Destination.Width / 2) + 5 : (-c.Destination.Width / 2) - 5 : 5),
-                            Y = DstP.Y + (sideConnections ? 5 : distanceY > 0 ? (c.Destination.Height / 2) + 5 : (-c.Destination.Height / 2) - 5)
-                        },
-                        Segments = new()
-                        {
-                            new LineSegment { Point = new() {
-                                X = DstP.X + (sideConnections ? distanceX > 0 ? c.Destination.Width / 2 : -c.Destination.Width / 2 : 0),
-                                Y = DstP.Y + (sideConnections ? 0 : distanceY > 0 ? c.Destination.Height / 2 : -c.Destination.Height / 2) }
-                            },
-                            new LineSegment { Point = new() {
-                                X = DstP.X + (sideConnections ? distanceX > 0 ? (c.Destination.Width / 2) + 5 : (-c.Destination.Width / 2) - 5 : -5),
-                                Y = DstP.Y + (sideConnections ? -5 : distanceY > 0 ? (c.Destination.Height / 2) + 5 : (-c.Destination.Height / 2) - 5) }
-                            },
-                            c.Shape == Connection.ShapeEnum.Diamond ? new LineSegment
-                            {
-                                Point = new() {
-                                X = DstP.X + (sideConnections ? distanceX > 0 ? (c.Destination.Width / 2) + 10 : (-c.Destination.Width / 2) - 10 : 0),
-                                Y = DstP.Y + (sideConnections ? 0 : distanceY > 0 ? (c.Destination.Height / 2) + 10 : (-c.Destination.Height / 2) - 10) }
-                            } : new LineSegment() { Point = new() {
-                                X = DstP.X + (sideConnections ? distanceX > 0 ? (c.Destination.Width / 2) + 5 : (-c.Destination.Width / 2) - 5 : -5),
-                                Y = DstP.Y + (sideConnections ? -5 : distanceY > 0 ? (c.Destination.Height / 2) + 5 : (-c.Destination.Height / 2) - 5) }
-                            }
-                        }
-                    }
-                };
+                PathFigureCollection shapePathFigures = ShapePath(c.Shape, sideConnections, DstP, distanceX, distanceY, halfDestinationWidth, halfDestinationHeight);
                 c.ShapePath.Data = new PathGeometry() { Figures = shapePathFigures };
             }
         }
@@ -299,24 +268,171 @@ namespace DiagramMaker
                 printDialog.PrintVisual(Canvas, "Diagram");
             }
         }
-    }
-    public class Connection
-    {
-        public Node Source { get; set; } = new();
-        public Node Destination { get; set; } = new();
-        public Path? Path { get; set; }
-        public Path? ShapePath { get; set; }
-        public ShapeEnum Shape { get; set; }
-        public enum ShapeEnum { Arrow, Triangle, Diamond }
-        public bool Dashed { get; set; } = false;
-        public bool Fill { get; set; } = false;
-    }
-    public class JsonConnection
-    {
-        public Node Source { get; set; } = new();
-        public Node Destination { get; set; } = new();
-        public string Shape { get; set; } = "";
-        public bool Dashed { get; set; } = false;
-        public bool Fill { get; set; } = false;
+
+        private Path SetPath()
+        {
+            return new Path
+            {
+                Stroke = brushSelected,
+                StrokeThickness = 2
+            };
+        }
+
+        private static PathFigureCollection ShapePath(Connection.ShapeEnum shape, bool sideConnections, Point DstP, double distanceX, double distanceY, double halfDestinationWidth, double halfDestinationHeight)
+        {
+            return new()
+                {
+                    new PathFigure()
+                    {
+                        IsClosed = shape is Connection.ShapeEnum.Diamond or Connection.ShapeEnum.Triangle,
+                        IsFilled = true,
+                        StartPoint = new() {
+                            X = DstP.X + (sideConnections ? distanceX > 0 ? halfDestinationWidth + 5 : (-halfDestinationWidth) - 5 : 5),
+                            Y = DstP.Y + (sideConnections ? 5 : distanceY > 0 ? halfDestinationHeight + 5 : (-halfDestinationHeight) - 5)
+                        },
+                        Segments = new()
+                        {
+                            new LineSegment { Point = new() {
+                                X = DstP.X + (sideConnections ? distanceX > 0 ? halfDestinationWidth : -halfDestinationWidth : 0),
+                                Y = DstP.Y + (sideConnections ? 0 : distanceY > 0 ? halfDestinationHeight : -halfDestinationHeight) }
+                            },
+                            new LineSegment { Point = new() {
+                                X = DstP.X + (sideConnections ? distanceX > 0 ? halfDestinationWidth + 5 : (-halfDestinationWidth) - 5 : -5),
+                                Y = DstP.Y + (sideConnections ? -5 : distanceY > 0 ? halfDestinationHeight + 5 : (-halfDestinationHeight) - 5) }
+                            },
+                            shape == Connection.ShapeEnum.Diamond ? new LineSegment
+                            {
+                                Point = new() {
+                                X = DstP.X + (sideConnections ? distanceX > 0 ? halfDestinationWidth + 10 : (-halfDestinationWidth) - 10 : 0),
+                                Y = DstP.Y + (sideConnections ? 0 : distanceY > 0 ? halfDestinationHeight + 10 : (-halfDestinationHeight) - 10) }
+                            } : new LineSegment() { Point = new() {
+                                X = DstP.X + (sideConnections ? distanceX > 0 ? halfDestinationWidth + 5 : (-halfDestinationWidth) - 5 : -5),
+                                Y = DstP.Y + (sideConnections ? -5 : distanceY > 0 ? halfDestinationHeight + 5 : (-halfDestinationHeight) - 5) }
+                            }
+                        }
+                    }
+                };
+        }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            List<JsonConnection> jsonConnections = new();
+            foreach (Connection c in connections)
+            {
+                JsonNode jsonNodeSource = NodeToJson(c.Source);
+                JsonNode jsonNodeDest = NodeToJson(c.Destination);
+                JsonConnection jsonConnection = new()
+                {
+                    Source = jsonNodeSource,
+                    Destination = jsonNodeDest,
+                    Shape = c.Shape,
+                    Dashed = c.Dashed,
+                    Fill = c.Fill
+                };
+                jsonConnections.Add(jsonConnection);
+            }
+            string serializedConnections = JsonSerializer.Serialize(jsonConnections, new JsonSerializerOptions() { IncludeFields = true });
+            List<JsonNode> singleNodes = new();
+            foreach (Node n in Canvas.Children.OfType<Node>().Where(n => !connections.Any(c => c.Source == n || c.Destination == n)))
+            {
+                singleNodes.Add(NodeToJson(n));
+            }
+            string serializedSingleNodes = JsonSerializer.Serialize(singleNodes, new JsonSerializerOptions() { IncludeFields = true });
+            SaveFileDialog saveFileDialog = new() { FileName = "save", DefaultExt = ".json" };
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                string path = saveFileDialog.FileName;
+                System.IO.File.WriteAllText(path, serializedConnections + '\n' + serializedSingleNodes);
+                _ = MessageBox.Show("Saved.");
+            }
+        }
+
+        private static JsonNode NodeToJson(Node node)
+        {
+            return new()
+            {
+                Uid = node.GetHashCode(),
+                Position = new() { X = (int)Canvas.GetLeft(node), Y = (int)Canvas.GetTop(node) },
+                Methods = node.Methods,
+                Variables = node.Variables
+            };
+        }
+
+        private void LoadButton_Click(object sender, RoutedEventArgs e)
+        {
+            Canvas.Children.Clear();
+            connections.Clear();
+            OpenFileDialog openFileDialog = new() { FileName = "save", DefaultExt = ".json" };
+            if (openFileDialog.ShowDialog() != true)
+            {
+                return;
+            }
+            string fileContent = System.IO.File.ReadAllText(openFileDialog.FileName);
+            string[] split = fileContent.Split('\n');
+            Dictionary<int, Node> hashNodes = new();
+            List<JsonConnection> jsonConnections = JsonSerializer.Deserialize<List<JsonConnection>>(split[0]) ?? new();
+            foreach (JsonConnection jsonConnection in jsonConnections)
+            {
+                Node sourceNode;
+                Node destNode;
+                if (!hashNodes.ContainsKey(jsonConnection.Source.Uid))
+                {
+                    sourceNode = AddJsonNode(jsonConnection.Source);
+                    hashNodes.Add(jsonConnection.Source.Uid, sourceNode);
+                }
+                else
+                {
+                    sourceNode = hashNodes[jsonConnection.Source.Uid];
+                }
+                if (!hashNodes.ContainsKey(jsonConnection.Destination.Uid))
+                {
+                    destNode = AddJsonNode(jsonConnection.Destination);
+                    hashNodes.Add(jsonConnection.Destination.Uid, destNode);
+                }
+                else
+                {
+                    destNode = hashNodes[jsonConnection.Destination.Uid];
+                }
+                connections.Add(new Connection()
+                {
+                    Source = sourceNode,
+                    Destination = destNode,
+                    Shape = jsonConnection.Shape,
+                    Dashed = jsonConnection.Dashed,
+                    Fill = jsonConnection.Fill
+                });
+            }
+            List<JsonNode> jsonNodes = JsonSerializer.Deserialize<List<JsonNode>>(split[1]) ?? new();
+            foreach (JsonNode jsonNode in jsonNodes)
+            {
+                _ = AddJsonNode(jsonNode);
+            }
+            DrawConnections();
+            _ = MessageBox.Show("Loaded.");
+        }
+
+        private Node AddJsonNode(JsonNode jsonNode)
+        {
+            Node node = JsonToNode(jsonNode);
+            _ = Canvas.Children.Add(node);
+            Canvas.SetLeft(node, jsonNode.Position.X);
+            Canvas.SetTop(node, jsonNode.Position.Y);
+            Canvas.SetZIndex(node, 2);
+            return node;
+        }
+
+        private Node JsonToNode(JsonNode jsonNode)
+        {
+            Node node = new()
+            {
+                Variables = jsonNode.Variables,
+                Methods = jsonNode.Methods
+            };
+            node.PreviewMouseMove += Node_PreviewMouseMove;
+            node.PreviewMouseDoubleClick += Node_PreviewMouseDoubleClick;
+            node.PreviewMouseLeftButtonDown += Node_PreviewMouseLeftButtonDown;
+            node.PreviewMouseRightButtonDown += Node_PreviewMouseRightButtonDown;
+            return node;
+        }
     }
 }

@@ -6,16 +6,115 @@
         xmlns:local="clr-namespace:DiagramMaker"
         xmlns:extensions="clr-namespace:DiagramMaker"
         mc:Ignorable="d"
-        Title="Editor" Height="450" Width="800">
+        Title="Editor" Height="450" Width="800" Background="#0d1117" Foreground="#c9d1d9">
     <Window.Resources>
-        <SolidColorBrush x:Key="TextBox.Static.Border" Color="#FFABAdB3"/>
-        <SolidColorBrush x:Key="TextBox.MouseOver.Border" Color="#FF7EB4EA"/>
-        <SolidColorBrush x:Key="TextBox.Focus.Border" Color="#FF569DE5"/>
-        <Style x:Key="TextBoxPlaceholder" TargetType="{x:Type TextBox}">
-            <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource TextBox.Static.Border}"/>
-            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+        <SolidColorBrush x:Key="Background" Color="#0d1117" />
+        <SolidColorBrush x:Key="Foreground" Color="#c9d1d9" />
+        <SolidColorBrush x:Key="ButtonBackground" Color="#161b22" />
+        <SolidColorBrush x:Key="BorderOrSelectedBackground" Color="#30363d" />
+        <SolidColorBrush x:Key="SelectedBorder" Color="#8b949e" />
+        <Style x:Key="DarkCombobox" TargetType="ComboBox">
+            <Setter Property="Background" Value="{StaticResource Background}" />
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Background" Value="{StaticResource Background}" />
+                        <Setter Property="Foreground" Value="{StaticResource Foreground}" />
+                        <Setter Property="BorderBrush" Value="{StaticResource BorderOrSelectedBackground}" />
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="DarkTabitem" TargetType="TabItem">
+            <Setter Property="Background" Value="{StaticResource ButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderOrSelectedBackground}"/>
+            <Setter Property="Foreground" Value="{StaticResource Foreground}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Grid>
+                            <Border x:Name="border" Background="{StaticResource Background}" BorderBrush="{StaticResource BorderOrSelectedBackground}" BorderThickness="1" Padding="2">
+                                <ContentPresenter ContentSource="Header"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource BorderOrSelectedBackground}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource SelectedBorder}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource BorderOrSelectedBackground}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource SelectedBorder}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="DatagridCell" TargetType="DataGridCell">
+            <Setter Property="BorderBrush" Value="{StaticResource BorderOrSelectedBackground}"/>
             <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style x:Key="DarkDatagrid" TargetType="DataGrid">
+            <Setter Property="Background" Value="{StaticResource Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderOrSelectedBackground}"/>
+            <Setter Property="Foreground" Value="{StaticResource Foreground}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Margin" Value="2" />
+            <Setter Property="RowBackground" Value="{StaticResource Background}" />
+            <Setter Property="AutoGenerateColumns" Value="False" />
+            <Setter Property="CanUserSortColumns" Value="False" />
+            <Setter Property="IsReadOnly" Value="True" />
+            <Setter Property="SelectionMode" Value="Single" />
+            <Setter Property="CellStyle" Value="{DynamicResource DatagridCell}" />
+            <Style.Resources>
+                <Style BasedOn="{StaticResource {x:Type DataGridColumnHeader}}" TargetType="{x:Type DataGridColumnHeader}">
+                    <Setter Property="Background" Value="{StaticResource ButtonBackground}" />
+                </Style>
+            </Style.Resources>
+        </Style>
+        <Style x:Key="DarkButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource ButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderOrSelectedBackground}"/>
+            <Setter Property="Foreground" Value="{StaticResource Foreground}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Margin" Value="2" />
+            <Setter Property="Padding" Value="0,-1,0,0" />
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="border" Background="{StaticResource ButtonBackground}" BorderBrush="{StaticResource BorderOrSelectedBackground}" BorderThickness="2">
+                                <ContentPresenter Content="{TemplateBinding Content}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource BorderOrSelectedBackground}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource SelectedBorder}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource SelectedBorder}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource SelectedBorder}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Resources>
+                <Style TargetType="{x:Type Border}">
+                    <Setter Property="CornerRadius" Value="3" />
+                </Style>
+            </Style.Resources>
+        </Style>
+        <Style x:Key="TextBoxPlaceholder" TargetType="{x:Type TextBox}">
+            <Setter Property="Background" Value="{StaticResource BorderOrSelectedBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource SelectedBorder}"/>
+            <Setter Property="Foreground" Value="{StaticResource Foreground}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Margin" Value="2" />
             <Setter Property="KeyboardNavigation.TabNavigation" Value="None"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
@@ -29,10 +128,11 @@
                             <Grid>
                                 <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
                                 <TextBlock x:Name="placeholderTextBlock"
-                                   Text="{TemplateBinding extensions:Extensions.Placeholder}" Visibility="Collapsed" Foreground="Gray"
+                                   Text="{TemplateBinding extensions:Extensions.Placeholder}" Visibility="Collapsed" Foreground="#c9d1d9"
                                    FontSize="{TemplateBinding FontSize}"
                                    FontFamily="{TemplateBinding FontFamily}"
-                                   VerticalAlignment="{TemplateBinding VerticalAlignment}"/>
+                                   VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                                   Margin="5,0,0,0"/>
                             </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -40,10 +140,10 @@
                                 <Setter Property="Opacity" TargetName="border" Value="0.56"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="true">
-                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource TextBox.MouseOver.Border}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="#8b949e"/>
                             </Trigger>
                             <Trigger Property="IsKeyboardFocused" Value="true">
-                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource TextBox.Focus.Border}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="#8b949e"/>
                             </Trigger>
                             <Trigger Property="Text" Value="">
                                 <Setter Property="Visibility" TargetName="placeholderTextBlock" Value="Visible"/>
@@ -61,9 +161,14 @@
                     <Setter Property="SelectionBrush" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"/>
                 </MultiTrigger>
             </Style.Triggers>
+            <Style.Resources>
+                <Style TargetType="{x:Type Border}">
+                    <Setter Property="CornerRadius" Value="3" />
+                </Style>
+            </Style.Resources>
         </Style>
     </Window.Resources>
-    <Grid>
+    <Grid Background="{StaticResource Background}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="4*"></ColumnDefinition>
             <ColumnDefinition Width="1*"></ColumnDefinition>
@@ -73,13 +178,13 @@
             <RowDefinition Height="15*"></RowDefinition>
         </Grid.RowDefinitions>
         <TextBox x:Name="Header" Style="{DynamicResource TextBoxPlaceholder}" extensions:Extensions.Placeholder="Class Name" Grid.Row="0" Grid.Column="0" TextAlignment="Center"/>
-        <Button x:Name="SaveExitButton" Content="Save Name &amp; Exit" Grid.Row="0" Grid.Column="1" ToolTip="Saves class name and closes editor." Click="SaveExitButton_Click"/>
-        <TabControl Grid.Row="1" Grid.ColumnSpan="2">
-            <TabItem>
+        <Button x:Name="SaveExitButton" Style="{DynamicResource DarkButton}" Content="Save Name &amp; Exit" Grid.Row="0" Grid.Column="1" ToolTip="Saves class name and closes editor." Click="SaveExitButton_Click" />
+        <TabControl Grid.Row="1" Grid.ColumnSpan="2" Background="{StaticResource Background}" BorderBrush="{StaticResource BorderOrSelectedBackground}">
+            <TabItem Style="{DynamicResource DarkTabitem}" IsSelected="True">
                 <TabItem.Header>
                     <TextBlock>Variables</TextBlock>
                 </TabItem.Header>
-                <Grid>
+                <Grid Background="{StaticResource Background}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.25*"/>
                         <ColumnDefinition Width="1*"/>
@@ -92,29 +197,26 @@
                         <RowDefinition Height="1*"/>
                         <RowDefinition Height="15*"/>
                     </Grid.RowDefinitions>
-                    <ComboBox x:Name="VariableComboBoxAccess" Grid.Row="0" Grid.Column="0" SelectedIndex="0" SelectedValuePath="Content"/>
+                    <ComboBox x:Name="VariableComboBoxAccess" Style="{DynamicResource DarkCombobox}" Grid.Row="0" Grid.Column="0" SelectedIndex="0" SelectedValuePath="Content"/>
                     <TextBox x:Name="VariableTextBoxName" Style="{DynamicResource TextBoxPlaceholder}" extensions:Extensions.Placeholder="Variable Name" Grid.Row="0" Grid.Column="1"/>
                     <TextBox x:Name="VariableTextBoxType" Style="{DynamicResource TextBoxPlaceholder}" extensions:Extensions.Placeholder="Variable Type" Grid.Row="0" Grid.Column="2"/>
-                    <Button x:Name="VariableAddEditButton" Content="Add" Grid.Row="0" Grid.Column="3" ToolTip="Adds a new row when no rows are selected. Edits selected row." Click="VariableAddEditButton_Click"/>
-                    <Button x:Name="VariableRemoveButton" Content="Remove" Grid.Row="0" Grid.Column="4" IsEnabled="False" ToolTip="Removes selected row." Click="VariableRemoveButton_Click"/>
-                    <Button x:Name="VariableDeselectButton" Content="Deselect Row" Grid.Row="0" Grid.Column="5" IsEnabled="False" ToolTip="Deselects row." Click="VariableDeselectButton_Click"/>
-                    <DataGrid x:Name="VariableDataGrid" Grid.Row="2" Grid.ColumnSpan="6" AutoGenerateColumns="False" CanUserSortColumns="False" IsReadOnly="True" SelectionMode="Single" SelectionChanged="VariableDataGrid_SelectionChanged">
+                    <Button x:Name="VariableAddEditButton" Style="{DynamicResource DarkButton}" Content="Add" Grid.Row="0" Grid.Column="3" ToolTip="Adds a new row when no rows are selected. Edits selected row." Click="VariableAddEditButton_Click"/>
+                    <Button x:Name="VariableRemoveButton" Style="{DynamicResource DarkButton}" Content="Remove" Grid.Row="0" Grid.Column="4" IsEnabled="False" ToolTip="Removes selected row." Click="VariableRemoveButton_Click"/>
+                    <Button x:Name="VariableDeselectButton" Style="{DynamicResource DarkButton}" Content="Deselect Row" Grid.Row="0" Grid.Column="5" IsEnabled="False" ToolTip="Deselects row." Click="VariableDeselectButton_Click"/>
+                    <DataGrid x:Name="VariableDataGrid" Style="{DynamicResource DarkDatagrid}" Grid.Row="2" Grid.ColumnSpan="6" SelectionChanged="VariableDataGrid_SelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Access" Width="1*" Binding="{Binding Access}"/>
                             <DataGridTextColumn Header="Variable Name" Width="4*" Binding="{Binding Name}"/>
                             <DataGridTextColumn Header="Returns" Width="2*" Binding="{Binding Type}"/>
                         </DataGrid.Columns>
-                        <DataGrid.Resources>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightBlue"/>
-                        </DataGrid.Resources>
                     </DataGrid>
                 </Grid>
             </TabItem>
-            <TabItem>
+            <TabItem Style="{DynamicResource DarkTabitem}">
                 <TabItem.Header>
                     <TextBlock>Methods</TextBlock>
                 </TabItem.Header>
-                <Grid>
+                <Grid Background="{StaticResource Background}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.25*"/>
                         <ColumnDefinition Width="0.9*"/>
@@ -128,31 +230,25 @@
                         <RowDefinition Height="0.075*"/>
                         <RowDefinition Height="1*"/>
                     </Grid.RowDefinitions>
-                    <ComboBox x:Name="MethodComboBoxAccess" Grid.Row="0" Grid.Column="0" SelectedIndex="0" SelectedValuePath="Content" ToolTip="Ignored for method variables."/>
+                    <ComboBox x:Name="MethodComboBoxAccess" Style="{DynamicResource DarkCombobox}" Grid.Row="0" Grid.Column="0" SelectedIndex="0" SelectedValuePath="Content" ToolTip="Ignored for method variables."/>
                     <TextBox x:Name="MethodTextBoxName" Style="{DynamicResource TextBoxPlaceholder}" extensions:Extensions.Placeholder="Method / Method Variable Name" Grid.Row="0" Grid.Column="1"/>
                     <TextBox x:Name="MethodTextBoxType" Style="{DynamicResource TextBoxPlaceholder}" extensions:Extensions.Placeholder="Type" Grid.Row="0" Grid.Column="2"/>
-                    <Button x:Name="MethodAddButton" Content="Add" Grid.Row="0" Grid.Column="3" ToolTip="Adds a new row, if method is selected, adds varibles to selected method." Click="MethodAddButton_Click"/>
-                    <Button x:Name="MethodEditButton" Content="Edit" Grid.Row="0" Grid.Column="4" IsEnabled="False" ToolTip="Edits selected row, if method is selected, varible is being edited." Click="MethodEditButton_Click"/>
-                    <Button x:Name="MethodRemoveButton" Content="Remove" Grid.Row="0" Grid.Column="5" IsEnabled="False" ToolTip="Removes selected row, if method varible is selected it deletes it before method." Click="MethodRemoveButton_Click"/>
-                    <Button x:Name="MethodDeselectButton" Content="Deselect Row" Grid.Row="0" Grid.Column="6" IsEnabled="False" ToolTip="Deselects method." Click="MethodDeselectButton_Click"/>
-                    <DataGrid x:Name="MethodDataGrid" Grid.Row="1" Grid.ColumnSpan="2" AutoGenerateColumns="False" CanUserSortColumns="False" IsReadOnly="True" SelectionMode="Single" SelectionChanged="MethodDataGrid_SelectionChanged">
+                    <Button x:Name="MethodAddButton" Style="{DynamicResource DarkButton}" Content="Add" Grid.Row="0" Grid.Column="3" ToolTip="Adds a new row, if method is selected, adds varibles to selected method." Click="MethodAddButton_Click"/>
+                    <Button x:Name="MethodEditButton" Style="{DynamicResource DarkButton}" Content="Edit" Grid.Row="0" Grid.Column="4" IsEnabled="False" ToolTip="Edits selected row, if method is selected, varible is being edited." Click="MethodEditButton_Click"/>
+                    <Button x:Name="MethodRemoveButton" Style="{DynamicResource DarkButton}" Content="Remove" Grid.Row="0" Grid.Column="5" IsEnabled="False" ToolTip="Removes selected row, if method varible is selected it deletes it before method." Click="MethodRemoveButton_Click"/>
+                    <Button x:Name="MethodDeselectButton" Style="{DynamicResource DarkButton}" Content="Deselect Row" Grid.Row="0" Grid.Column="6" IsEnabled="False" ToolTip="Deselects method." Click="MethodDeselectButton_Click"/>
+                    <DataGrid x:Name="MethodDataGrid" Style="{DynamicResource DarkDatagrid}" Grid.Row="1" Grid.ColumnSpan="2" SelectionChanged="MethodDataGrid_SelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Access" Width="1*" Binding="{Binding Access}"/>
                             <DataGridTextColumn Header="Method Name" Width="4*" Binding="{Binding Name}"/>
                             <DataGridTextColumn Header="Returns" Width="2*" Binding="{Binding Type}"/>
                         </DataGrid.Columns>
-                        <DataGrid.Resources>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightBlue"/>
-                        </DataGrid.Resources>
                     </DataGrid>
-                    <DataGrid x:Name="MethodVariablesDataGrid" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="5" AutoGenerateColumns="False" CanUserSortColumns="False" IsReadOnly="True" SelectionMode="Single" SelectionChanged="MethodVariablesDataGrid_SelectionChanged">
+                    <DataGrid x:Name="MethodVariablesDataGrid" Style="{DynamicResource DarkDatagrid}" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="5" SelectionChanged="MethodVariablesDataGrid_SelectionChanged">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Variable Name" Width="3*" Binding="{Binding Name}"/>
                             <DataGridTextColumn Header="Type" Width="1*" Binding="{Binding Type}"/>
                         </DataGrid.Columns>
-                        <DataGrid.Resources>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightBlue"/>
-                        </DataGrid.Resources>
                     </DataGrid>
                 </Grid>
             </TabItem>

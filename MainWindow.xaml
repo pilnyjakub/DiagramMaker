@@ -7,10 +7,58 @@
         mc:Ignorable="d"
         x:Name="Window"
         Title="Diagram Maker" Height="450" Width="800">
+    <Window.Resources>
+        <SolidColorBrush x:Key="Background" Color="#0d1117" />
+        <SolidColorBrush x:Key="Foreground" Color="#c9d1d9" />
+        <SolidColorBrush x:Key="ButtonBackground" Color="#161b22" />
+        <SolidColorBrush x:Key="BorderOrSelectedBackground" Color="#30363d" />
+        <SolidColorBrush x:Key="SelectedBorder" Color="#8b949e" />
+        <Style x:Key="DarkButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource ButtonBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderOrSelectedBackground}"/>
+            <Setter Property="Foreground" Value="{StaticResource Foreground}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Margin" Value="2" />
+            <Setter Property="Padding" Value="0,-1,0,0" />
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Height" Value="40" />
+            <Setter Property="Width" Value="120" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="border" Background="{StaticResource ButtonBackground}" BorderBrush="{StaticResource BorderOrSelectedBackground}" BorderThickness="2">
+                                <ContentPresenter Content="{TemplateBinding Content}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource BorderOrSelectedBackground}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource SelectedBorder}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource SelectedBorder}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource SelectedBorder}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Resources>
+                <Style TargetType="{x:Type Border}">
+                    <Setter Property="CornerRadius" Value="3" />
+                </Style>
+            </Style.Resources>
+        </Style>
+    </Window.Resources>
     <Grid>
-        <Canvas x:Name="Canvas"/>
-        <Button Content="Add Node" HorizontalAlignment="Left" VerticalAlignment="Top" Height="100" Width="100" Click="NodeButton_Click"/>
-        <Button x:Name="ConnectButton" Content="Connect Nodes" HorizontalAlignment="Left" VerticalAlignment="Top" Height="100" Width="100" Margin="0,100,0,0" Click="ConnectButton_Click"/>
-        <Button Content="Print" HorizontalAlignment="Left" VerticalAlignment="Top" Height="100" Width="100" Margin="0,200,0,0" Click="PrintButton_Click"/>
+        <Canvas x:Name="Canvas" Background="#21262d"/>
+        <Button Content="Add Node" Style="{DynamicResource DarkButton}" HorizontalAlignment="Left" VerticalAlignment="Top" Click="NodeButton_Click" Margin="10"/>
+        <Button x:Name="ConnectButton" Style="{DynamicResource DarkButton}" Content="Connect Nodes" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,55,0,0" Click="ConnectButton_Click"/>
+        <Button Content="Print" Style="{DynamicResource DarkButton}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,100,0,0" Click="PrintButton_Click"/>
+        <Button Content="Save" Style="{DynamicResource DarkButton}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10, 0, 0, 55" Click="SaveButton_Click"/>
+        <Button Content="Load" Style="{DynamicResource DarkButton}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10, 0, 0, 10" Click="LoadButton_Click" />
     </Grid>
 </Window>

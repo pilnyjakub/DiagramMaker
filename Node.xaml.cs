@@ -23,9 +23,9 @@ namespace DiagramMaker
 
         public enum AccessEnum
         {
+            Protected = '#',
             Public = '+',
             Private = '-',
-            Protected = '#',
             Package = '~'
         }
 
@@ -59,7 +59,7 @@ namespace DiagramMaker
                     variables += $"{variable.Name} : {variable.Type}, ";
                 }
                 variables = variables.Length > 2 ? variables[..^2] : variables;
-                _ = methodsText.AppendLine($"{(char)method.Access} {method.Name}({variables}) : {method.Type}");
+                _ = methodsText.Append((char)method.Access).Append(' ').Append(method.Name).Append('(').Append(variables).Append(") : ").AppendLine(method.Type);
             }
             MethodsTextBlock.Text = methodsText.ToString();
             SizeChange();
@@ -70,7 +70,7 @@ namespace DiagramMaker
             StringBuilder variablesText = new();
             foreach (Variable variable in Variables)
             {
-                _ = variablesText.AppendLine($"{(char)variable.Access} {variable.Name} : {variable.Type}");
+                _ = variablesText.Append((char)variable.Access).Append(' ').Append(variable.Name).Append(" : ").AppendLine(variable.Type);
             }
             VariablesTextBlock.Text = variablesText.ToString();
             SizeChange();
@@ -79,7 +79,7 @@ namespace DiagramMaker
         private void SizeChange()
         {
             CultureInfo culture = CultureInfo.CurrentCulture;
-            FlowDirection flowdirection = FlowDirection.LeftToRight;
+            const FlowDirection flowdirection = FlowDirection.LeftToRight;
             Typeface typeface = new("Segoe UI");
             FormattedText ftHeader = new(Header.Text, culture, flowdirection, typeface, Header.FontSize, Brushes.Black, 1);
             FormattedText ftVariables = new(VariablesTextBlock.Text, culture, flowdirection, typeface, VariablesTextBlock.FontSize, Brushes.Black, 1);
