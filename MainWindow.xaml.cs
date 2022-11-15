@@ -352,6 +352,7 @@ namespace DiagramMaker
             return new()
             {
                 Uid = node.GetHashCode(),
+                Header = node.Header.Text,
                 Position = new() { X = (int)Canvas.GetLeft(node), Y = (int)Canvas.GetTop(node) },
                 Methods = node.Methods,
                 Variables = node.Variables
@@ -360,19 +361,20 @@ namespace DiagramMaker
 
         private void LoadButton_Click(object sender, RoutedEventArgs e)
         {
-            Canvas.Children.Clear();
-            connections.Clear();
             OpenFileDialog openFileDialog = new() { FileName = "save", DefaultExt = ".json" };
             if (openFileDialog.ShowDialog() != true)
             {
                 return;
             }
+            Canvas.Children.Clear();
+            connections.Clear();
             string fileContent = System.IO.File.ReadAllText(openFileDialog.FileName);
             string[] split = fileContent.Split('\n');
             Dictionary<int, Node> hashNodes = new();
-            List<JsonConnection> jsonConnections = JsonSerializer.Deserialize<List<JsonConnection>>(split[0]) ?? new();
+            List<JsonConnection> jsonConnections = JsonSerializer.Deserialize<List<JsonConnection>>(split[0], new JsonSerializerOptions() { IncludeFields = true }) ?? new();
             foreach (JsonConnection jsonConnection in jsonConnections)
             {
+                if (jsonConnection.Source is null || jsonConnection.Destination is null) return;
                 Node sourceNode;
                 Node destNode;
                 if (!hashNodes.ContainsKey(jsonConnection.Source.Uid))
@@ -402,7 +404,7 @@ namespace DiagramMaker
                     Fill = jsonConnection.Fill
                 });
             }
-            List<JsonNode> jsonNodes = JsonSerializer.Deserialize<List<JsonNode>>(split[1]) ?? new();
+            List<JsonNode> jsonNodes = JsonSerializer.Deserialize<List<JsonNode>>(split[1], new JsonSerializerOptions() { IncludeFields = true }) ?? new();
             foreach (JsonNode jsonNode in jsonNodes)
             {
                 _ = AddJsonNode(jsonNode);
@@ -425,9 +427,12 @@ namespace DiagramMaker
         {
             Node node = new()
             {
-                Variables = jsonNode.Variables,
-                Methods = jsonNode.Methods
+                Variables = jsonNode.Variables ?? new(),
+                Methods = jsonNode.Methods ?? new()
             };
+            node.MethodsToText(null, null!);
+            node.VariablesToText(null, null!);
+            node.Header.Text = jsonNode.Header;
             node.PreviewMouseMove += Node_PreviewMouseMove;
             node.PreviewMouseDoubleClick += Node_PreviewMouseDoubleClick;
             node.PreviewMouseLeftButtonDown += Node_PreviewMouseLeftButtonDown;

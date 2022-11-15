@@ -65,7 +65,7 @@ namespace DiagramMaker
             SizeChange();
         }
 
-        private void VariablesToText(object? sender, NotifyCollectionChangedEventArgs e)
+        public void VariablesToText(object? sender, NotifyCollectionChangedEventArgs e)
         {
             StringBuilder variablesText = new();
             foreach (Variable variable in Variables)
