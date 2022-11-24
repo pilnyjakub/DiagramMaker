@@ -1,6 +1,4 @@
-﻿using static DiagramMaker.Connection;
-
-namespace DiagramMaker
+﻿namespace DiagramMaker.Infrastructure
 {
     public class JsonConnection
     {

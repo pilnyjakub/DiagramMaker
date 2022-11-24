@@ -1,4 +1,5 @@
-﻿using System.Windows.Shapes;
+﻿using DiagramMaker.Infrastructure;
+using System.Windows.Shapes;
 
 namespace DiagramMaker
 {
@@ -9,7 +10,6 @@ namespace DiagramMaker
         public Path? Path { get; set; }
         public Path? ShapePath { get; set; }
         public ShapeEnum Shape { get; set; }
-        public enum ShapeEnum { Arrow, Triangle, Diamond }
         public bool Dashed { get; set; }
         public bool Fill { get; set; }
     }

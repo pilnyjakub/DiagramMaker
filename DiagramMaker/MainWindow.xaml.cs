@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using DiagramMaker.Infrastructure;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -25,16 +26,18 @@ namespace DiagramMaker
         private Node? DestNode;
         private bool connectionDashed;
         private bool connectionFill;
-        private Connection.ShapeEnum connectionShape = Connection.ShapeEnum.Arrow;
+        private ShapeEnum connectionShape = ShapeEnum.Arrow;
         private bool connect;
         private readonly Brush brushButton = new SolidColorBrush(Color.FromRgb(22, 27, 34));
         private readonly Brush brushDefault = new SolidColorBrush(Color.FromRgb(48, 54, 61));
         private readonly Brush brushSelected = new SolidColorBrush(Color.FromRgb(139, 148, 158));
         private readonly Brush brushBackground = new SolidColorBrush(Color.FromRgb(33, 38, 45));
+
         public MainWindow()
         {
             InitializeComponent();
         }
+
         private void NodeButton_Click(object sender, RoutedEventArgs e)
         {
             Node node = new();
@@ -156,32 +159,37 @@ namespace DiagramMaker
                 case "Association":
                     connectionDashed = false;
                     connectionFill = false;
-                    connectionShape = Connection.ShapeEnum.Arrow;
+                    connectionShape = ShapeEnum.Arrow;
                     break;
+
                 case "Inheritance":
                     connectionDashed = false;
                     connectionFill = false;
-                    connectionShape = Connection.ShapeEnum.Triangle;
+                    connectionShape = ShapeEnum.Triangle;
                     break;
+
                 case "Realization":
                     connectionDashed = true;
                     connectionFill = false;
-                    connectionShape = Connection.ShapeEnum.Triangle;
+                    connectionShape = ShapeEnum.Triangle;
                     break;
+
                 case "Dependency":
                     connectionDashed = true;
                     connectionFill = false;
-                    connectionShape = Connection.ShapeEnum.Arrow;
+                    connectionShape = ShapeEnum.Arrow;
                     break;
+
                 case "Aggregation":
                     connectionDashed = false;
                     connectionFill = false;
-                    connectionShape = Connection.ShapeEnum.Diamond;
+                    connectionShape = ShapeEnum.Diamond;
                     break;
+
                 case "Composition":
                     connectionDashed = false;
                     connectionFill = true;
-                    connectionShape = Connection.ShapeEnum.Diamond;
+                    connectionShape = ShapeEnum.Diamond;
                     break;
             }
         }
@@ -278,13 +286,13 @@ namespace DiagramMaker
             };
         }
 
-        private static PathFigureCollection ShapePath(Connection.ShapeEnum shape, bool sideConnections, Point DstP, double distanceX, double distanceY, double halfDestinationWidth, double halfDestinationHeight)
+        private static PathFigureCollection ShapePath(ShapeEnum shape, bool sideConnections, Point DstP, double distanceX, double distanceY, double halfDestinationWidth, double halfDestinationHeight)
         {
             return new()
                 {
                     new PathFigure()
                     {
-                        IsClosed = shape is Connection.ShapeEnum.Diamond or Connection.ShapeEnum.Triangle,
+                        IsClosed = shape is ShapeEnum.Diamond or ShapeEnum.Triangle,
                         IsFilled = true,
                         StartPoint = new() {
                             X = DstP.X + (sideConnections ? distanceX > 0 ? halfDestinationWidth + 5 : (-halfDestinationWidth) - 5 : 5),
@@ -300,7 +308,7 @@ namespace DiagramMaker
                                 X = DstP.X + (sideConnections ? distanceX > 0 ? halfDestinationWidth + 5 : (-halfDestinationWidth) - 5 : -5),
                                 Y = DstP.Y + (sideConnections ? -5 : distanceY > 0 ? halfDestinationHeight + 5 : (-halfDestinationHeight) - 5) }
                             },
-                            shape == Connection.ShapeEnum.Diamond ? new LineSegment
+                            shape == ShapeEnum.Diamond ? new LineSegment
                             {
                                 Point = new() {
                                 X = DstP.X + (sideConnections ? distanceX > 0 ? halfDestinationWidth + 10 : (-halfDestinationWidth) - 10 : 0),
