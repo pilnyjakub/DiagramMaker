@@ -20,7 +20,7 @@ namespace DiagramMaker
     public partial class MainWindow : Window
     {
         private Point pointNode = new() { X = 0, Y = 0 };
-        private Node selectedNode = new();
+        private Node? selectedNode = null;
         private readonly ObservableCollection<Connection> connections = new();
         private Node? SourceNode;
         private Node? DestNode;
@@ -66,6 +66,8 @@ namespace DiagramMaker
         {
             if (e.LeftButton != MouseButtonState.Pressed) { return; }
             Node_PreviewMouseLeftButtonDown(sender, e);
+            if (selectedNode == null)
+                throw new Exception("Selected node is null");
             Editor editor = new(selectedNode);
             _ = editor.ShowDialog();
         }
