@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DiagramMaker.Infrastructure;
+using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Globalization;
@@ -21,30 +22,7 @@ namespace DiagramMaker
             Variables.CollectionChanged += VariablesToText;
         }
 
-        public enum AccessEnum
-        {
-            Protected = '#',
-            Public = '+',
-            Private = '-',
-            Package = '~'
-        }
-
-        public class Variable
-        {
-            public AccessEnum Access { get; set; } = AccessEnum.Public;
-            public string Name { get; set; } = "";
-            public string Type { get; set; } = "";
-        }
-
         public ObservableCollection<Variable> Variables = new();
-
-        public class Method
-        {
-            public AccessEnum Access { get; set; } = AccessEnum.Public;
-            public string Name { get; set; } = "";
-            public string Type { get; set; } = "";
-            public ObservableCollection<Variable> MethodVariables = new();
-        }
 
         public ObservableCollection<Method> Methods = new();
 

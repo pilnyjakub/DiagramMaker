@@ -1,8 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Drawing;
-using static DiagramMaker.Node;
 
-namespace DiagramMaker
+namespace DiagramMaker.Infrastructure
 {
     public class JsonNode
     {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DiagramMaker.Infrastructure;
+using System;
 using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,6 +12,7 @@ namespace DiagramMaker
     public partial class Editor : Window
     {
         public Node Node;
+
         public Editor(Node node)
         {
             Node = node;
@@ -18,8 +20,8 @@ namespace DiagramMaker
             Header.Text = Node.Header.Text;
             MethodDataGrid.ItemsSource = Node.Methods;
             VariableDataGrid.ItemsSource = Node.Variables;
-            MethodComboBoxAccess.ItemsSource = Enum.GetNames(typeof(Node.AccessEnum));
-            VariableComboBoxAccess.ItemsSource = Enum.GetNames(typeof(Node.AccessEnum));
+            MethodComboBoxAccess.ItemsSource = Enum.GetNames(typeof(AccessEnum));
+            VariableComboBoxAccess.ItemsSource = Enum.GetNames(typeof(AccessEnum));
         }
 
         private void SaveExitButton_Click(object sender, RoutedEventArgs e)
@@ -32,7 +34,7 @@ namespace DiagramMaker
 
         private void VariableAddEditButton_Click(object sender, RoutedEventArgs e)
         {
-            Node.Variable variable = new() { Access = (Node.AccessEnum)Enum.Parse(typeof(Node.AccessEnum), VariableComboBoxAccess.SelectedItem.ToString() ?? ""), Name = VariableTextBoxName.Text, Type = VariableTextBoxType.Text };
+            Variable variable = new() { Access = (AccessEnum)Enum.Parse(typeof(AccessEnum), VariableComboBoxAccess.SelectedItem.ToString() ?? ""), Name = VariableTextBoxName.Text, Type = VariableTextBoxType.Text };
             if (VariableDataGrid.SelectedIndex == -1)
             {
                 Node.Variables.Add(variable);
@@ -60,7 +62,7 @@ namespace DiagramMaker
             if (VariableDataGrid.SelectedIndex == -1) { return; }
             VariableAddEditButton.Content = "Edit";
             VariableDeselectButton.IsEnabled = VariableRemoveButton.IsEnabled = true;
-            Node.Variable variable = Node.Variables[VariableDataGrid.SelectedIndex];
+            Variable variable = Node.Variables[VariableDataGrid.SelectedIndex];
             VariableComboBoxAccess.SelectedItem = variable.Access.ToString();
             VariableTextBoxName.Text = variable.Name;
             VariableTextBoxType.Text = variable.Type;
@@ -73,7 +75,7 @@ namespace DiagramMaker
             VariableDeselectButton.IsEnabled = VariableRemoveButton.IsEnabled = false;
         }
 
-        #endregion
+        #endregion Variables
 
         #region Methods
 
@@ -81,11 +83,11 @@ namespace DiagramMaker
         {
             if (MethodDataGrid.SelectedIndex == -1)
             {
-                Node.Methods.Add(new Node.Method { Access = (Node.AccessEnum)Enum.Parse(typeof(Node.AccessEnum), MethodComboBoxAccess.SelectedItem.ToString() ?? ""), Name = MethodTextBoxName.Text, Type = MethodTextBoxType.Text });
+                Node.Methods.Add(new Method { Access = (AccessEnum)Enum.Parse(typeof(AccessEnum), MethodComboBoxAccess.SelectedItem.ToString() ?? ""), Name = MethodTextBoxName.Text, Type = MethodTextBoxType.Text });
             }
             else
             {
-                Node.Methods[MethodDataGrid.SelectedIndex].MethodVariables.Add(new Node.Variable { Name = MethodTextBoxName.Text, Type = MethodTextBoxType.Text });
+                Node.Methods[MethodDataGrid.SelectedIndex].MethodVariables.Add(new Variable { Name = MethodTextBoxName.Text, Type = MethodTextBoxType.Text });
                 Node.MethodsToText(null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             }
         }
@@ -95,8 +97,8 @@ namespace DiagramMaker
             int selected = MethodDataGrid.SelectedIndex;
             if (MethodDataGrid.SelectedIndex != -1 && MethodVariablesDataGrid.SelectedIndex == -1)
             {
-                Node.Method method = Node.Methods[MethodDataGrid.SelectedIndex];
-                method.Access = (Node.AccessEnum)Enum.Parse(typeof(Node.AccessEnum), MethodComboBoxAccess.SelectedItem.ToString() ?? "");
+                Method method = Node.Methods[MethodDataGrid.SelectedIndex];
+                method.Access = (AccessEnum)Enum.Parse(typeof(AccessEnum), MethodComboBoxAccess.SelectedItem.ToString() ?? "");
                 method.Name = MethodTextBoxName.Text;
                 method.Type = MethodTextBoxType.Text;
                 Node.Methods[MethodDataGrid.SelectedIndex] = method;
@@ -108,7 +110,7 @@ namespace DiagramMaker
             }
             else if (MethodDataGrid.SelectedIndex != -1 && MethodVariablesDataGrid.SelectedIndex != -1)
             {
-                Node.Methods[MethodDataGrid.SelectedIndex].MethodVariables[MethodVariablesDataGrid.SelectedIndex] = new Node.Variable { Name = MethodTextBoxName.Text, Type = MethodTextBoxType.Text };
+                Node.Methods[MethodDataGrid.SelectedIndex].MethodVariables[MethodVariablesDataGrid.SelectedIndex] = new Variable { Name = MethodTextBoxName.Text, Type = MethodTextBoxType.Text };
                 Node.MethodsToText(null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             }
         }
@@ -139,7 +141,7 @@ namespace DiagramMaker
         private void MethodDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (MethodDataGrid.SelectedIndex == -1) { return; }
-            Node.Method method = Node.Methods[MethodDataGrid.SelectedIndex];
+            Method method = Node.Methods[MethodDataGrid.SelectedIndex];
             MethodComboBoxAccess.SelectedItem = method.Access.ToString();
             MethodTextBoxName.Text = method.Name;
             MethodTextBoxType.Text = method.Type;
@@ -150,12 +152,12 @@ namespace DiagramMaker
         private void MethodVariablesDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (MethodVariablesDataGrid.SelectedIndex == -1) { return; }
-            Node.Variable variable = Node.Methods[MethodDataGrid.SelectedIndex].MethodVariables[MethodVariablesDataGrid.SelectedIndex];
+            Variable variable = Node.Methods[MethodDataGrid.SelectedIndex].MethodVariables[MethodVariablesDataGrid.SelectedIndex];
             MethodTextBoxName.Text = variable.Name;
             MethodTextBoxType.Text = variable.Type;
             MethodDeselectButton.IsEnabled = MethodRemoveButton.IsEnabled = MethodEditButton.IsEnabled = true;
         }
 
-        #endregion
+        #endregion Methods
     }
 }
